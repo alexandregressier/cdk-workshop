@@ -1,7 +1,8 @@
 import { Stack, StackProps } from "aws-cdk-lib"
 import { Construct } from "constructs"
 import { SubnetType, Vpc } from "aws-cdk-lib/aws-ec2"
-import * as lambda from "aws-cdk-lib/aws-lambda"
+import { Function, Code, Runtime } from "aws-cdk-lib/aws-lambda"
+import { LambdaRestApi } from "aws-cdk-lib/aws-apigateway"
 
 export class CdkWorkshopStack extends Stack {
     constructor(scope: Construct, id: string, props?: StackProps) {
@@ -17,14 +18,18 @@ export class CdkWorkshopStack extends Stack {
             ],
         })
 
-        const handler = new lambda.Function(this, "Lambda", {
-            runtime: lambda.Runtime.NODEJS_14_X,
-            code: lambda.Code.fromAsset("resources"),
+        const handler = new Function(this, "Lambda", {
+            runtime: Runtime.NODEJS_14_X,
+            code: Code.fromAsset("resources"),
             handler: "index.hello_world",
             vpc,
             vpcSubnets: {
                 subnetType: SubnetType.PRIVATE_ISOLATED,
             },
+        })
+
+        const api = new LambdaRestApi(this, "API", {
+            handler,
         })
     }
 }
